@@ -11,6 +11,11 @@ This is a PHP library which emulates Instagram's Private API. This library is ju
 ----------
 ## Installation
 
+You Need! 
+
+1. Use PHP >= 7
+2. [Enabled OpenSSL on PHP](https://www.php.net/manual/de/openssl.installation.php).
+
 ### Install this library
 We use composer to distribute our code effectively and easily. If you do not already have composer installed, you can download and install it here [here](https://getcomposer.org/download/).
 
