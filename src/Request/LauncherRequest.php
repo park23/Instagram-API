@@ -19,9 +19,9 @@ class LauncherRequest {
      * @param $responseObject
      * @return bool|Response
      */
-    public function Sync($data, $responseObject) {
+    public function Sync($data, $responseObject, $needAuth) {
         return $this->client->request("/launcher/sync/", $responseObject)
-            ->needAuthorization(false)
+            ->needAuthorization($needAuth)
             ->addParam('signed_body', $this->generateSigned_body($data))
             ->addParam('ig_sig_key_version', 4)
             ->post();
@@ -37,6 +37,21 @@ class LauncherRequest {
             "server_config_retrieval" => "1"
         ];
         $str = json_encode($data);
-        $this->Sync($str, Response::class); //TODO: Build response object
+        $this->Sync($str, Response::class, false); //TODO: Build response object
+    }
+
+    /**
+     *
+     */
+    public function postLoginSync() {
+        $data = [
+            "_csrftoken" => $this->client->get_csrt_token(),
+            "id" => $this->getClient()->get_cookie_from_name("ds_user_id"),
+            "_uid" => $this->getClient()->get_cookie_from_name('ds_user_id'),
+            "_uuid" => $this->getClient()->getDeviceId(),
+            "server_config_retrieval" => "1"
+        ];
+        $str = json_encode($data);
+        $this->Sync($str, Response::class, true); //TODO: Build response object
     }
 }

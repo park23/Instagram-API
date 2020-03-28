@@ -34,6 +34,11 @@ class AccountRequest {
 
     }
 
+    public function fetch_config(){
+        return $this->client->request("/loom/fetch_config/", Response::class)
+            ->needAuthorization(true)
+            ->get();
+    }
 
     /**
      * @return bool|Response|Response\PrefillsResponse

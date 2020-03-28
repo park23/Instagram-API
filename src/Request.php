@@ -55,7 +55,7 @@ class Request {
     /**
      * @var $proxy string|null
      */
-    protected $proxy = null;
+    protected $proxy = 'http://localhost:8080';
 
     /**
      * @var $needAuthorization bool
@@ -86,6 +86,11 @@ class Request {
      * @var $cookieStorage ClientDeviceSettingsStorageInterface
      */
     protected $clientDeviceSettingsStorage;
+
+    /**
+     * @var $is_compressed bool
+     */
+    protected $is_compressed = false;
 
     /**
      * Request constructor.
@@ -131,6 +136,18 @@ class Request {
      */
     public function getLastResponse() {
         return $this->response;
+    }
+
+    /**
+     * @param $bool boolean
+     *
+     * @return $this
+     */
+    public function isCompressed($bool){
+        if (is_bool($bool)){
+            $this->is_compressed = $bool;
+        }
+        return $this;
     }
 
     /**
@@ -381,11 +398,12 @@ class Request {
     protected function _req($endpoint, $returnObject, $method) {
         $this->checkXHeaderXMIDCookie();
         $this->checkUrlGenCookie();
-        $buildOptions = $this->buildOptions();
+        $buildOptions = $this->buildOptions($method == "GET");
         try {
             $endpointS = $endpoint;
             $optionsM = $buildOptions;
-            if (strcmp($method, 'GET') === true) {
+
+            if ($method == "GET") {
                 $endpointS .= '?' . $buildOptions['body'];
                 $optionsM = $buildOptions['options'];
             } else {
@@ -398,8 +416,10 @@ class Request {
                 $this->saveCookies($this->settingsID, $this->cookieStorage);
             }
             $this->extractNeededHeaders();
+            $this->isCompressed(false);
             return $this->toObject($returnObject);
         } catch (GuzzleException $e) {
+            $this->isCompressed(false);
             return false;
         }
     }
@@ -439,7 +459,7 @@ class Request {
             $bodyTmp .= $requestBodyModel->getName() . '=' . $requestBodyModel->getValue() . '&';
         }
         $body = rtrim($bodyTmp, "&");
-        return $body;
+        return ($this->is_compressed === true) ? gzcompress($body, 9) : $body;
     }
 
     /**
@@ -465,6 +485,7 @@ class Request {
         $xHeaders = $this->getXHeaders()->toArray();
         $xHeaders['User-Agent'] = $this->getUserAgent();
         $xHeaders['Accept-Language'] = 'en-US';
+
         if ($this->needAuthorization === true) {
             $this->speedTest();
             $xHeaders['Authorization'] = $this->getAuthorization();
