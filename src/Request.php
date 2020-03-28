@@ -201,7 +201,7 @@ class Request {
         $this->_authorization = $authorizationStorage->readAuthorization($username);
 
         $xigSetHeader = $this->clientDeviceSettingsStorage->readSettings($username, 'xigsetwwwclaim_header', 0);
-        $this->_userAgent = $this->clientDeviceSettingsStorage->readSettings($username, 'user_agent', 0);
+        $this->_userAgent = $this->clientDeviceSettingsStorage->readSettings($username, 'user_agent', $this->_userAgent);
 
         $this->X_Headers->setXIGWWWClaim($xigSetHeader);
 
