@@ -5,41 +5,35 @@ namespace InstagramFollowers\Devices;
 class GoodDevices {
 
     const DEVICES = [
-        /* OnePlus 3T. Released: November 2016.
-         * https://www.amazon.com/OnePlus-A3010-64GB-Gunmetal-International/dp/B01N4H00V8
-         * https://www.handsetdetection.com/properties/devices/OnePlus/A3010
+        /*
+         * Xiaomi Mi A2. Released: 2018, July.
          */
-        '24/7.0; 380dpi; 1080x1920; OnePlus; ONEPLUS A3010; OnePlus3T; qcom',
+        '28/9; 480dpi; 1080x2016; Xiaomi/xiaomi; Mi A2; jasmine_sprout; qcom',
 
-        /* LG G5. Released: April 2016.
-         * https://www.amazon.com/LG-Unlocked-Phone-Titan-Warranty/dp/B01DJE22C2
-         * https://www.handsetdetection.com/properties/devices/LG/RS988
+        /*
+         * LG Stylo 5. Released: 2019, June.
          */
-        '23/6.0.1; 640dpi; 1440x2392; LGE/lge; RS988; h1; h1',
+        '28/9; 480dpi; 1080x2016; LGE/lge; LGL722DL; cv7as; cv7as',
 
-        /* Huawei Mate 9 Pro. Released: January 2017.
-         * https://www.amazon.com/Huawei-Dual-Sim-Titanium-Unlocked-International/dp/B01N9O1L6N
-         * https://www.handsetdetection.com/properties/devices/Huawei/LON-L29
+        /*
+         * Xiaomi Redmi Note 8T. Released: 2019, November.
          */
-        '24/7.0; 640dpi; 1440x2560; HUAWEI; LON-L29; HWLON; hi3660',
+        '28/9; 440dpi; 1080x2130; Xiaomi/xiaomi; Redmi Note 8T; willow; qcom',
 
-        /* ZTE Axon 7. Released: June 2016.
-         * https://www.frequencycheck.com/models/OMYDK/zte-axon-7-a2017u-dual-sim-lte-a-64gb
-         * https://www.handsetdetection.com/properties/devices/ZTE/A2017U
+        /*
+         * Huawei Mate 20 Lite. Released: 2018, September.
          */
-        '23/6.0.1; 640dpi; 1440x2560; ZTE; ZTE A2017U; ailsa_ii; qcom',
+        '29/10; 480dpi; 1080x2128; HUAWEI; SNE-LX1; HWSNE; kirin710',
 
-        /* Samsung Galaxy S7 Edge SM-G935F. Released: March 2016.
-         * https://www.amazon.com/Samsung-SM-G935F-Factory-Unlocked-Smartphone/dp/B01C5OIINO
-         * https://www.handsetdetection.com/properties/devices/Samsung/SM-G935F
-         */
-        '23/6.0.1; 640dpi; 1440x2560; samsung; SM-G935F; hero2lte; samsungexynos8890',
+        /*
+        * Samsung Galaxy A10E S102DL. Released: 2019, August.
+        */
+        '28/9; 320dpi; 720x1402; samsung; SM-S102DL; a10e; exynos7885',
 
-        /* Samsung Galaxy S7 SM-G930F. Released: March 2016.
-         * https://www.amazon.com/Samsung-SM-G930F-Factory-Unlocked-Smartphone/dp/B01J6MS6BC
-         * https://www.handsetdetection.com/properties/devices/Samsung/SM-G930F
+        /*
+         * Samsung Galaxy S10 Plus SM-G975U. Released: 2019, March.
          */
-        '23/6.0.1; 640dpi; 1440x2560; samsung; SM-G930F; herolte; samsungexynos8890',
+        '29/10; 420dpi; 1080x2047; samsung; SM-G975U; beyond2q; qcom',
     ];
 
     /**
@@ -52,6 +46,7 @@ class GoodDevices {
 
         $device = explode(';', self::DEVICES[$randomIdx]);
         $deviceModel = new DeviceModel();
+
 
         $deviceModel->setOsVersion($device[0]);
         $deviceModel->setDensityDPI($device[1]);
