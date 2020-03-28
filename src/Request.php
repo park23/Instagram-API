@@ -55,8 +55,8 @@ class Request {
     /**
      * @var $proxy string|null
      */
-    protected $proxy = null;
-    
+    protected $proxy = 'http://localhost:8080';
+
     /**
      * @var $needAuthorization bool
      */
@@ -95,6 +95,7 @@ class Request {
     public function __construct($X_Headers, $clientDeviceSettingsStorage) {
         $this->X_Headers = $X_Headers;
         $this->_userAgent = (new UserAgent())->generate_UserAgent();
+
         $this->cookieJar = new CookieJar();
         $this->_authorization = '';
         $this->clientDeviceSettingsStorage = $clientDeviceSettingsStorage;
@@ -108,16 +109,26 @@ class Request {
         );
     }
 
+    /**
+     * @return string
+     */
     public function get_csrt_token() {
         $tokenCookie = $this->cookieJar->getCookieByName('csrftoken');
         return ($tokenCookie === null) ? "" : $tokenCookie->getValue();
     }
 
+    /**
+     * @param $cookieName
+     * @return string
+     */
     public function get_cookie_from_name($cookieName) {
         $cookie = $this->cookieJar->getCookieByName($cookieName);
         return ($cookie === null) ? "" : $cookie->getValue();
     }
 
+    /**
+     * @return ResponseInterface
+     */
     public function getLastResponse() {
         return $this->response;
     }
@@ -219,6 +230,11 @@ class Request {
         return $this;
     }
 
+    /**
+     * @param $name
+     * @param $value
+     * @return $this
+     */
     public function addParam($name, $value) {
         $this->body[] = new RequestBodyModel($name, $value);
 
@@ -254,11 +270,19 @@ class Request {
 
     }
 
+    /**
+     * @param bool $auth
+     * @return $this
+     */
     public function needAuthorization($auth = true) {
         $this->needAuthorization = $auth;
         return $this;
     }
 
+    /**
+     * @param bool $get
+     * @return array
+     */
     protected function buildOptions($get = false) {
         $options = [];
 
@@ -279,6 +303,11 @@ class Request {
         return $options;
     }
 
+    /**
+     * @param $uri
+     * @param $returnObject
+     * @return $this
+     */
     public function request($uri, $returnObject) {
         $this->endpointURI = InstagramConstants::INSTAGRAM_API_URL . $uri;
         $this->returnObject = $returnObject;
@@ -332,6 +361,17 @@ class Request {
     }
 
     /**
+     * Weird but the app sends this cookie just like this
+     */
+    protected function checkUrlGenCookie(){
+        $cookie = $this->cookieJar->getCookieByName('urlgen');
+        if ($cookie !== null){
+            $cookie->setValue('{\\');
+            $this->cookieJar->setCookie($cookie);
+        }
+    }
+
+    /**
      * @param $endpoint string
      * @param $returnObject Response
      * @param $method string
@@ -340,6 +380,7 @@ class Request {
      */
     protected function _req($endpoint, $returnObject, $method) {
         $this->checkXHeaderXMIDCookie();
+        $this->checkUrlGenCookie();
         $buildOptions = $this->buildOptions();
         try {
             $endpointS = $endpoint;
@@ -363,8 +404,12 @@ class Request {
         }
     }
 
+    /**
+     * Sets the value of X-MID header
+     */
     protected function checkXHeaderXMIDCookie() {
         $xmid = $this->cookieJar->getCookieByName('mid');
+
         if ($xmid !== null) {
             $this->X_Headers->setXMID($xmid->getValue());
 
@@ -397,6 +442,9 @@ class Request {
         return $body;
     }
 
+    /**
+     * //TODO: investigate the max and min numbers of these fields
+     */
     protected function speedTest() {
         $totalBytes = rand(7000, 73519);
         $totalTimeMS = rand(100, 131);

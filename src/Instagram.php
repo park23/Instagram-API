@@ -101,14 +101,12 @@ class Instagram extends Client {
     /**
      * Pre Login flow
      */
-    protected function _preLoginFlowRequests() {
+    public function _preLoginFlowRequests() {
         $this->accountRequest->contactPointPrefill();
         $this->launcherRequest->preLoginSync();
         $this->qERequest->syncLoginExperiments();
         $this->launcherRequest->preLoginSync();
         $this->qERequest->syncLoginExperiments();
-
-
     }
 
     /**
@@ -123,12 +121,20 @@ class Instagram extends Client {
         if ($this->authorizationStorage->is_valid_authorization($username) === false) {
             $this->_preLoginFlowRequests();
             return $this->_login($username, $password);
+            //TODO: Implement post login Flow
         } else {
             $this->setUsernameAndCookieStorage($username, $this->cookiesStorage);
             return true;
         }
     }
 
+    /**
+     * Gets the [0] value of an array
+     *
+     * @param $array array
+     *
+     * @return string
+     */
     protected function zeroArrayValue($array) {
         if ($array !== null && is_array($array)) {
             return $array[0];
@@ -172,7 +178,6 @@ class Instagram extends Client {
             $response = $this->accountRequest->login_deprecated($username, $password);
         }
         $this->saveCookies($username, $this->cookiesStorage);
-
 
         if ($response->getInvalidCredentials() === true || $response->getStatus() === 'fail') {
             throw new \Exception(($response->isErrorTitle() === true) ? $response->getErrorTitle() : $response->getErrorType(), 1);
