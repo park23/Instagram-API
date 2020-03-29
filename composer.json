@@ -24,9 +24,7 @@
             "InstagramFollowers\\Tests\\": "tests/"
         }
     },
-    "license": [
-        "RPL-1.5"
-    ],
+    "license": "RPL-1.5",
     "require": {
         "php": ">=7.0",
         "lazyjsonmapper/lazyjsonmapper": "^1.6.1",
