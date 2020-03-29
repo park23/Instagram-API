@@ -60,4 +60,108 @@ class PeopleRequest {
         return $this->shop_many_friendships_response;
 
     }
+
+    /**
+     * $add or $remove are array of user PKs
+     *
+     * @param $remove array
+     * @param $add array
+     *
+     * @return bool|Response|FriendshipsShowManyResponse|Response
+     */
+    protected function set_besties($remove = [], $add = []) {
+        $data = [
+            "block_on_empty_thread_creation" => "false",
+            "module" => "CLOSE_FRIENDS_V2_SEARCH",
+            "source" => "audience_manager",
+            "_csrftoken" => $this->getClient()->get_csrt_token(),
+            "_uid" => $this->getClient()->get_cookie_from_name('ds_user_id'),
+            "_uuid" => $this->getClient()->getDeviceId(),
+            "remove" => $remove,
+            "add" => $add,
+
+        ];
+        $dataStr = json_encode($data);
+        return $this->client->request('/friendships/set_besties/', Response\FriendshipsShowManyResponse::class)
+            ->needAuthorization(true)
+            ->addParam('signed_body', $this->generateSigned_body($dataStr))
+            ->addParam('ig_sig_key_version', InstagramConstants::IG_SIG_KEY_VERSION)
+            ->post();
+    }
+
+    /**
+     * @var $add_best_friend_Response FriendshipsShowManyResponse|Response|null
+     */
+    public $add_best_friend_Response = null;
+
+    /**
+     * Add best friend
+     *
+     * Here you can pass one User pk or more in an array
+     * like [0123485789,0123456789,01263456789]
+     *
+     * @param $user_pks int|array
+     *
+     * @return FriendshipsShowManyResponse
+     */
+    public function add_best_friend($user_pks) {
+        if (is_array($user_pks) === true) {
+            $this->add_best_friend_Response = $this->set_besties([], $user_pks);
+        } else {
+            $this->add_best_friend_Response = $this->set_besties([], [$user_pks]);
+        }
+        return $this->add_best_friend_Response;
+    }
+
+
+    /**
+     * @var $delete_best_friend_Response Response\GetBestiesResponse|Response|null
+     */
+    public $get_besties_response = null;
+
+    /**
+     * @return bool|Response|Response\GetBestiesResponse
+     */
+    public function get_besties() {
+        $this->get_besties_response = $this->client->request('/friendships/besties/', Response\GetBestiesResponse::class)
+            ->needAuthorization(true)
+            ->get();
+        return $this->get_besties_response;
+    }
+
+    /**
+     * @var $delete_best_friend_Response Response\GetBestiesResponse|Response|null
+     */
+    public $get_bestie_suggestions_response = null;
+
+    public function get_bestie_suggestions() {
+        $this->get_bestie_suggestions_response = $this->client->request('/friendships/bestie_suggestions/', Response\GetBestiesResponse::class)
+            ->needAuthorization(true)
+            ->get();
+        return $this->get_bestie_suggestions_response;
+    }
+
+    /**
+     * @var $delete_best_friend_Response FriendshipsShowManyResponse|Response|null
+     */
+    public $delete_best_friend_Response = null;
+
+    /**
+     * Add best friend
+     *
+     * Here you can pass one User pk or more in an array
+     * like [0123485789,0123456789,01263456789]
+     *
+     * @param $user_pks int|array
+     *
+     * @return FriendshipsShowManyResponse
+     */
+    public function delete_best_friend($user_pks) {
+        if (is_array($user_pks) === true) {
+            $this->delete_best_friend_Response = $this->set_besties($user_pks, []);
+        } else {
+            $this->delete_best_friend_Response = $this->set_besties([$user_pks], []);
+        }
+        return $this->delete_best_friend_Response;
+    }
 }

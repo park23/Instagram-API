@@ -87,6 +87,11 @@ use InstagramFollowers\Response;
  * @method int getFollowingTagCount()
  * @method $this setFollowingTagCount(int $value)
  * @method $this unsetFollowingTagCount()
+ * @method bool hasFriendshipStatus()
+ * @method bool isFriendshipStatus()
+ * @method \InstagramFollowers\Response\Models\IsBestieModel getFriendshipStatus()
+ * @method $this setFriendshipStatus(\InstagramFollowers\Response\Models\IsBestieModel $value)
+ * @method $this unsetFriendshipStatus()
  * @method bool hasFullName()
  * @method bool isFullName()
  * @method string getFullName()
@@ -127,6 +132,11 @@ use InstagramFollowers\Response;
  * @method int getInteropMessagingUserFbid()
  * @method $this setInteropMessagingUserFbid(int $value)
  * @method $this unsetInteropMessagingUserFbid()
+ * @method bool hasIsBestie()
+ * @method bool isIsBestie()
+ * @method bool getIsBestie()
+ * @method $this setIsBestie(bool $value)
+ * @method $this unsetIsBestie()
  * @method bool hasIsBusiness()
  * @method bool isIsBusiness()
  * @method bool getIsBusiness()
@@ -331,6 +341,8 @@ class UserModel extends Response {
         "has_active_charity_business_profile_fundraiser" => "bool",
         "charity_profile_fundraiser_info" => "CharityProfileFundraiserInfoModel",
         "latest_reel_media" => "int",
+        "friendship_status" =>"IsBestieModel",
+        "is_bestie" => "bool",
 
         "can_boost_post" => "bool",
         "page_name" => "string",
