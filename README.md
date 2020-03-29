@@ -10,12 +10,6 @@ This is a PHP library which emulates Instagram's Private API. This library is ju
 
 ----------
 ## Installation
-
-You Need! 
-
-1. Use PHP >= 7
-2. [Enabled OpenSSL on PHP](https://www.php.net/manual/de/openssl.installation.php).
-
 You Need! 
 
 1. Use PHP >= 7
