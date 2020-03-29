@@ -55,7 +55,8 @@ $userPK = $lastGetInfoResponse->getUser()->getPk();
 
 
 ## Examples
-//TODO
+
+All examples can be found [here](https://github.com/socialAPIS/Instagram-API/tree/master/examples).
 
 ## Why did I make this API?
 
