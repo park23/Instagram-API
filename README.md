@@ -35,7 +35,7 @@ require __DIR__.'/../vendor/autoload.php';
 $ig = new \InstagramFollowers\Instagram();
 $loginResponse = $ig->login("username", "password");
 
-or you can grab the last login request by
+or you can grab the last login response by
 
 $loginResponse = $instagram->accountRequest->loginResponse;
 ```
