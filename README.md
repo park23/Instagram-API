@@ -16,13 +16,31 @@ You Need!
 1. Use PHP >= 7
 2. [Enabled OpenSSL on PHP](https://www.php.net/manual/de/openssl.installation.php).
 
+## Access last requests
+
+Your requests are never get lost, they are all kept in memory.
+Example:
+```
+$userInfo = $instagram->usersRequest->getInfoByName($user_pk);
+```
+
+you can every time access your last response for this function like this
+```
+$lastGetInfoResposne = $instagram->usersRequest->getInfoByNameResponse;
+$userPK = $lastGetInfoResponse->getUser()->getPk();
+```
+
+You Need! 
+
+1. Use PHP >= 7
+2. [Enabled OpenSSL on PHP](https://www.php.net/manual/de/openssl.installation.php).
+
 ### Install this library
 We use composer to distribute our code effectively and easily. If you do not already have composer installed, you can download and install it here [here](https://getcomposer.org/download/).
 
 Once you have composer installed, you can do the following:
 ```sh
 composer require socialapis/instagram-api
-
 ```
 
 ```sh
