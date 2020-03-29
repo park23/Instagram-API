@@ -7,11 +7,20 @@ use InstagramFollowers\Traits\ClientTrait;
 
 class Direct_v2Request {
     use ClientTrait;
+    /**
+     * @var $get_presence_response Response|null
+     */
+    public $get_presence_response = null;
+    /**
+     * @var $get_inbox_response Response|null
+     */
+    public $get_inbox_response = null;
 
     public function get_presence() {
-        return $this->client->request("/direct_v2/get_presence/", Response::class)
+        $this->get_presence_response = $this->client->request("/direct_v2/get_presence/", Response::class)
             ->needAuthorization(true)
             ->get();
+        return $this->get_presence_response;
     }
 
     public function get_Inbox($thread_message_limit = '10', $limit = '20', $persistentBadging = 'true', $visual_message_return_type = "unseen") {
@@ -21,8 +30,10 @@ class Direct_v2Request {
         if ($thread_message_limit !== null) {
             $req->addParam('thread_message_limit', $thread_message_limit);
         }
-        return $req->addParam('persistentBadging', $persistentBadging)
+        $this->get_inbox_response = $req->addParam('persistentBadging', $persistentBadging)
             ->addParam('limit', $limit)
             ->get();
+        return $this->get_inbox_response;
     }
+
 }

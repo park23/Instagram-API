@@ -10,13 +10,23 @@ use InstagramFollowers\Traits\SignDataTrait;
 class QPRequest {
     use ClientTrait;
     use SignDataTrait;
+    /**
+     * @var $get_cooldowns_response Response|null
+     */
+    public $get_cooldowns_response = null;
+    /**
+     * @var $batch_fetch_response Response|null
+     */
+    public $batch_fetch_response = null;
+
 
     public function get_cooldowns() {
-        return $this->client->request("/qp/get_cooldowns/", Response::class)
+        $this->get_cooldowns_response = $this->client->request("/qp/get_cooldowns/", Response::class)
             ->needAuthorization(true)
             ->addParam('signed_body', $this->generateSigned_body('{}'))
             ->addParam('ig_sig_key_version', InstagramConstants::IG_SIG_KEY_VERSION)
             ->get();
+        return $this->get_cooldowns_response;
     }
 
     public function batch_fetch() {
@@ -34,11 +44,13 @@ class QPRequest {
 
         ];
         $dataJson = json_encode($data);
-        return $this->client->request("/qp/batch_fetch/", Response::class)
+        $this->batch_fetch_response = $this->client->request("/qp/batch_fetch/", Response::class)
             ->needAuthorization(true)
             ->addParam('signed_body', $this->generateSigned_body($dataJson))
             ->addParam('ig_sig_key_version', InstagramConstants::IG_SIG_KEY_VERSION)
             ->post();
+        return $this->batch_fetch_response;
     }
+
 
 }

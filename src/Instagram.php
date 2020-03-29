@@ -157,13 +157,14 @@ class Instagram extends Client {
     /**
      * @param $username string
      * @param $password string
+     * @param $relogin bool
      *
      * @return bool|Response|Response\LoginResponse
      *
      * @throws \Exception
      */
-    public function login($username, $password) {
-        if ($this->device_storage->session_exists($username) === true && $this->device_storage->session_is_valid($username) === true) {
+    public function login($username, $password, $relogin = false) {
+        if ($this->device_storage->session_exists($username) === true && $this->device_storage->session_is_valid($username) === true && $relogin === false) {
 
             $session = $this->device_storage->read_device_settings($username);
             $this->initDeviceFromArray($session);
@@ -204,8 +205,8 @@ class Instagram extends Client {
         $this->launcherRequest->postLoginSync();
         $this->multipleAccounts->get_account_family();
         $this->qERequest->syncPostLoginExperiments();
-         $this->banyanRequest->banyan();
-          $this->feedRequest->reels_tray();
+        $this->banyanRequest->banyan();
+        $this->feedRequest->reels_tray();
         $this->feedRequest->feed_timeline();
 //        POST /api/v1/push/register/
 //        POST /api/v1/push/register/
@@ -227,6 +228,7 @@ class Instagram extends Client {
         $this->statusRequest->get_viewable_statuses();
         $this->directV2Request->get_Inbox();
         $this->directV2Request->get_Inbox(null);
+        $this->accountRequest->process_contact_point_signals();
     }
 
     /**

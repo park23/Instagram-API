@@ -10,6 +10,14 @@ use InstagramFollowers\Traits\SignDataTrait;
 class QERequest {
     use ClientTrait;
     use SignDataTrait;
+    /**
+     * @var $syncLoginExperimentsResponse Response\QESyncResponse
+     */
+    public $syncLoginExperimentsResponse = null;
+    /**
+     * @var $syncPostLoginExperimentsResponse Response\QESyncResponse
+     */
+    public $syncPostLoginExperimentsResponse = null;
 
     /**
      * @return bool|Response|Response\QESyncResponse
@@ -24,11 +32,12 @@ class QERequest {
         ];
         $dataStr = json_encode($data);
 
-        return $this->client->request("/qe/sync/", Response\QESyncResponse::class)
+        $this->syncLoginExperimentsResponse = $this->client->request("/qe/sync/", Response\QESyncResponse::class)
             ->needAuthorization(false)
             ->addParam('signed_body', $this->generateSigned_body($dataStr))
             ->addParam("ig_sig_key_version", InstagramConstants::IG_SIG_KEY_VERSION)
             ->post();
+        return $this->syncLoginExperimentsResponse;
     }
 
     /**
@@ -45,10 +54,12 @@ class QERequest {
         ];
         $dataStr = json_encode($data);
 
-        return $this->client->request("/qe/sync/", Response\QESyncResponse::class)
+        $this->syncPostLoginExperimentsResponse = $this->client->request("/qe/sync/", Response\QESyncResponse::class)
             ->needAuthorization(true)
             ->addParam('signed_body', $this->generateSigned_body($dataStr))
             ->addParam("ig_sig_key_version", InstagramConstants::IG_SIG_KEY_VERSION)
             ->post();
+        return $this->syncPostLoginExperimentsResponse;
     }
+
 }

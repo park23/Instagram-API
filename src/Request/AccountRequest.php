@@ -16,6 +16,27 @@ class AccountRequest {
     use SignDataTrait;
 
     /**
+     * @var $contactPointPrefillResponse Response|null
+     */
+    public $contactPointPrefillResponse = null;
+    /**
+     * @var $fetch_configResponse Response|null
+     */
+    public $fetch_configResponse = null;
+    /**
+     * @var $getPrefillCandidatesResponse Response\PrefillsResponse|Response|null
+     */
+    public $getPrefillCandidatesResponse = null;
+    /**
+     * @var $process_contact_point_signals_response Response|null
+     */
+    public $process_contact_point_signals_response = null;
+    /**
+     * @var $loginResponse Response\LoginResponse|null
+     */
+    public $loginResponse = null;
+
+    /**
      * @param string $mobile_subno_usage
      * @return bool|Response
      */
@@ -26,18 +47,44 @@ class AccountRequest {
             'usage' => $mobile_subno_usage
 
         ];
-        return $this->client->request("/accounts/contact_point_prefill/", Response::class)
+        $this->contactPointPrefillResponse = $this->client->request("/accounts/contact_point_prefill/", Response::class)
             ->needAuthorization(false)
             ->addParam('signed_body', $this->generateSignedBodyFromArray($data))
             ->addParam("ig_sig_key_version", InstagramConstants::IG_SIG_KEY_VERSION)
             ->post();
-
+        return $this->contactPointPrefillResponse;
     }
 
-    public function fetch_config(){
-        return $this->client->request("/loom/fetch_config/", Response::class)
+    /**
+     * @return bool|Response
+     */
+    public function process_contact_point_signals() {
+        $data = [
+            'phone_id' => $this->client->getPhoneId(),
+            'sim_phone_number' => "",
+            '_csrftoken' => $this->client->get_csrt_token(),
+            '_uid' => $this->getClient()->get_cookie_from_name('ds_user_id'),
+            'device_id' => $this->getClient()->getDeviceId(),
+            '_uuid' => $this->getClient()->getDeviceId(),
+            'google_tokens' => '[]',
+
+        ];
+        $this->process_contact_point_signals_response = $this->client->request("/accounts/process_contact_point_signals/", Response::class)
+            ->needAuthorization(false)
+            ->addParam('signed_body', $this->generateSignedBodyFromArray($data))
+            ->addParam("ig_sig_key_version", InstagramConstants::IG_SIG_KEY_VERSION)
+            ->post();
+        return $this->process_contact_point_signals_response;
+    }
+
+    /**
+     * @return bool|Response
+     */
+    public function fetch_config() {
+        $this->fetch_configResponse = $this->client->request("/loom/fetch_config/", Response::class)
             ->needAuthorization(true)
             ->get();
+        return $this->fetch_configResponse;
     }
 
     /**
@@ -52,11 +99,12 @@ class AccountRequest {
             '_csrftoken' => $this->client->get_csrt_token(),
             'device_id' => $this->client->getDeviceId()
         ];
-        return $this->client->request("/accounts/get_prefill_candidates/", Response::class)
+        $this->getPrefillCandidatesResponse = $this->client->request("/accounts/get_prefill_candidates/", Response::class)
             ->needAuthorization(false)
             ->addParam('signed_body', $this->generateSignedBodyFromArray($data))
             ->addParam("ig_sig_key_version", InstagramConstants::IG_SIG_KEY_VERSION)
             ->post();
+        return $this->getPrefillCandidatesResponse;
 
 
     }
@@ -70,7 +118,7 @@ class AccountRequest {
      * @return bool|Response|Response\LoginResponse
      */
     public function login_deprecated($username, $password) {
-        return $this->client->request("/accounts/login/", Response\LoginResponse::class)
+        $this->loginResponse = $this->client->request("/accounts/login/", Response\LoginResponse::class)
             ->needAuthorization(false)
             ->addParam('country_codes', '[{"country_code":"1","source":["default"]}]')
             ->addParam('phone_id', $this->client->getPhoneId())
@@ -83,6 +131,8 @@ class AccountRequest {
             ->addParam('google_tokens', '[]')
             ->addParam('login_attempt_count', 0)
             ->post();
+
+        return $this->loginResponse;
     }
 
     /**
@@ -105,11 +155,12 @@ class AccountRequest {
             "google_tokens" => "[]",
             "login_attempt_count" => "0"
         ];
-        return $this->client->request("/accounts/login/", Response\LoginResponse::class)
+        $this->loginResponse = $this->client->request("/accounts/login/", Response\LoginResponse::class)
             ->needAuthorization(false)
             ->addParam('signed_body', $this->generateSignedBodyFromArray($data))
             ->addParam("ig_sig_key_version", InstagramConstants::IG_SIG_KEY_VERSION)
             ->post();
+        return $this->loginResponse;
 
     }
 

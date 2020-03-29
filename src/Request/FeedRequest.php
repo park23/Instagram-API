@@ -3,12 +3,25 @@
 namespace InstagramFollowers\Request;
 
 use InstagramFollowers\Response;
+use InstagramFollowers\Response\UserFeedResponse;
 use InstagramFollowers\Traits\ClientTrait;
 use InstagramFollowers\Traits\GenerateUUIDV4Trait;
 
 class FeedRequest {
     use ClientTrait;
     use GenerateUUIDV4Trait;
+    /**
+     * @var $reels_tray_response Response|null
+     */
+    public $reels_tray_response = null;
+    /**
+     * @var $feed_timeline_response Response|null
+     */
+    public $feed_timeline_response;
+    /**
+     * @var $getUserFeedLastResponse UserFeedResponse|Response|null
+     */
+    public $getUserFeedLastResponse;
 
     /**
      * Example for the preloaded_reel_ids = 1234567890,1234567890,1234567890
@@ -46,7 +59,8 @@ class FeedRequest {
             $request->addParam('preloaded_reel_ids', $preloaded_reel_ids)
                 ->addParam('preloaded_reel_timestamp', $preloaded_reel_timestamp);
         }
-        return $request->post();
+        $this->reels_tray_response = $request->post();
+        return $this->reels_tray_response;
 
     }
 
@@ -75,7 +89,7 @@ class FeedRequest {
      * @return bool|Response
      */
     public function feed_timeline($reason = 'cold_start_fetch', $feed_view_info = []) {
-        return $this->client->request("/feed/timeline/", Response::class)
+        $this->feed_timeline_response = $this->client->request("/feed/timeline/", Response::class)
             ->needAuthorization(true)
             ->isCompressed(true)
             ->addParam('feed_view_info', "[]")
@@ -94,5 +108,25 @@ class FeedRequest {
             ->addParam('session_id', $this->generateUUID(true))
             ->addParam('bloks_versioning_id', "eacf6da5385f864af32eacb0b8c86530ef66ef1856961080bb20605e9d807f46")
             ->post();
+        return $this->feed_timeline_response;
     }
+
+    /**
+     * @param $user_id int
+     * @param $max_id int
+     *
+     * @return bool|Response|UserFeedResponse
+     */
+    public function getUserFeed($user_id, $max_id) {
+        $req = $this->client->request("/feed/user/$user_id/", UserFeedResponse::class)
+            ->needAuthorization(true)
+            ->addParam('exclude_comment', "true");
+        if ($max_id !== null) {
+            $req->addParam('', '');
+        }
+        $this->getUserFeedLastResponse = $req->addParam('only_fetch_first_carousel_media', "false")->post();
+
+        return $this->getUserFeedLastResponse;
+    }
+
 }

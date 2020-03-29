@@ -13,6 +13,14 @@ use InstagramFollowers\Traits\SignDataTrait;
 class LauncherRequest {
     use ClientTrait;
     use SignDataTrait;
+    /**
+     * @var $preLoginSync_response Response|null
+     */
+    public $preLoginSync_response = null;
+    /**
+     * @var $postLoginSync_response Response|null
+     */
+    public $postLoginSync_response = null;
 
     /**
      * @param $data
@@ -37,7 +45,8 @@ class LauncherRequest {
             "server_config_retrieval" => "1"
         ];
         $str = json_encode($data);
-        $this->Sync($str, Response::class, false); //TODO: Build response object
+        $this->preLoginSync_response = $this->Sync($str, Response::class, false); //TODO: Build response object
+        return $this->preLoginSync_response;
     }
 
     /**
@@ -52,6 +61,9 @@ class LauncherRequest {
             "server_config_retrieval" => "1"
         ];
         $str = json_encode($data);
-        $this->Sync($str, Response::class, true); //TODO: Build response object
+        $this->postLoginSync_response = $this->Sync($str, Response::class, true); //TODO: Build response object
+        return $this->postLoginSync_response;
     }
+
+
 }

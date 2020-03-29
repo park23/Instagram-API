@@ -9,9 +9,9 @@ class BanyanRequest {
     use ClientTrait;
 
     /**
-     * @var $banyanLastResponse Response
+     * @var $banyanLastResponse Response|null
      */
-    protected $banyanLastResponse = null;
+    public $banyanLastResponse = null;
 
     /**
      * @return bool|Response
@@ -24,13 +24,6 @@ class BanyanRequest {
             ->needAuthorization(true)
             ->addParam('views', $urlStr)
             ->get();
-        return $this->banyanLastResponse;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getBanyanLastResponse() {
         return $this->banyanLastResponse;
     }
 
