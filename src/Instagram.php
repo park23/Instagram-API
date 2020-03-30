@@ -304,11 +304,21 @@ class Instagram extends Client {
         }
         $this->saveCookies($username, $this->cookiesStorage);
 
-        if ($response->getInvalidCredentials() === true || $response->getStatus() === 'fail') {
+        if ($response->getInvalidCredentials() === true ) {
             throw new \Exception(($response->isErrorTitle() === true) ? $response->getErrorTitle() : $response->getErrorType(), 1);
         } else {
-            $this->saveAuthorization($username, $this->authorizationStorage);
-            return $response;
+            if ($response->getStatus() === 'fail' && $response->getTwoFactorRequired() === true){
+                $ver_code = readline("Two Factor Authentication Required, please enter your verification code: ");
+                $res = $this->accountRequest->two_factor_login($ver_code, $response->getTwoFactorInfo()->getTwoFactorIdentifier(), $username);
+
+                if ($res->getStatus() == 'ok'){
+                    $this->saveAuthorization($username, $this->authorizationStorage);
+                    return $response;
+                }else{
+                    throw new \Exception(($response->isErrorTitle() === true) ? $response->getErrorTitle() : $response->getErrorType(), 1);
+                }
+            }
+
         }
     }
 

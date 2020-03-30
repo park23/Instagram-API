@@ -125,8 +125,8 @@ class AccountRequest {
             ->addParam('_csrftoken', $this->client->get_csrt_token())
             ->addParam('username', $username)
             ->addParam('adid', $this->client->getAdvertisingId())
-            ->addParam('guid', $this->client->getUuid())
-            ->addParam('device_id', $this->client->getDeviceId())
+            ->addParam('guid', $this->client->getDeviceId())
+            ->addParam('device_id', $this->client->getAndroidId())
             ->addParam('password', $password)
             ->addParam('google_tokens', '[]')
             ->addParam('login_attempt_count', 0)
@@ -150,12 +150,40 @@ class AccountRequest {
             "_csrftoken" => $this->client->get_csrt_token(),
             "username" => $username,
             "adid" => $this->client->getAdvertisingId(),
-            "guid" => $this->client->getUuid(),
-            "device_id" => $this->client->getDeviceId(),
+            "guid" => $this->client->getDeviceId(),
+            "device_id" => $this->client->getAndroidId(),
             "google_tokens" => "[]",
             "login_attempt_count" => "0"
         ];
         $this->loginResponse = $this->client->request("/accounts/login/", Response\LoginResponse::class)
+            ->needAuthorization(false)
+            ->addParam('signed_body', $this->generateSignedBodyFromArray($data))
+            ->addParam("ig_sig_key_version", InstagramConstants::IG_SIG_KEY_VERSION)
+            ->post();
+        return $this->loginResponse;
+
+    }
+
+    /**
+     * @param $verification_code string
+     * @param $two_factor_identifier string
+     * @param $username string
+     *
+     * @return bool|Response|Response\LoginResponse
+     */
+    public function two_factor_login($verification_code, $two_factor_identifier, $username) {
+        $data = [
+            "verification_code" => $verification_code,
+            "phone_id" => $this->getClient()->getPhoneId(),
+            "_csrftoken" => $this->getClient()->get_csrt_token(),
+            "two_factor_identifier" => $two_factor_identifier,
+            "username" => $username,
+            "trust_this_device" => "0",
+            "guid" => $this->getClient()->getDeviceId(),
+            "device_id" => $this->getClient()->getAndroidId(),
+            "verification_method" => "1"
+        ];
+        $this->loginResponse = $this->client->request("/accounts/two_factor_login/", Response\LoginResponse::class)
             ->needAuthorization(false)
             ->addParam('signed_body', $this->generateSignedBodyFromArray($data))
             ->addParam("ig_sig_key_version", InstagramConstants::IG_SIG_KEY_VERSION)
