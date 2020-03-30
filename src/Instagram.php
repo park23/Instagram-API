@@ -317,6 +317,13 @@ class Instagram extends Client {
                 }else{
                     throw new \Exception(($response->isErrorTitle() === true) ? $response->getErrorTitle() : $response->getErrorType(), 1);
                 }
+            }else{
+                if ($response->getStatus() == 'ok'){
+                    $this->saveAuthorization($username, $this->authorizationStorage);
+                    return $response;
+                }else{
+                    throw new \Exception(($response->isErrorTitle() === true) ? $response->getErrorTitle() : $response->getErrorType(), 1);
+                }
             }
 
         }
