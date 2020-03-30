@@ -17,7 +17,7 @@ class XHeadersModel implements ModelInterface {
     public $X_IG_Bandwidth_TotalTime_MS = '';
     public $X_IG_App_Startup_Country = '';
     public $X_Bloks_Version_Id = '';
-    public $X_IG_WWW_Claim = '';
+    public $X_IG_WWW_Claim = 0;
     public $X_Bloks_Is_Layout_RTL = false;
     public $X_IG_Device_ID = '';
     public $X_IG_Android_ID = '';
@@ -31,10 +31,24 @@ class XHeadersModel implements ModelInterface {
         return json_encode($this->toArray());
     }
 
+    public function addHeader($name, $value) {
+        $this->$name = $value;
+    }
+
+    public function deleteHeader($name){
+        unset($this->$name);
+
+    }
+
     public function toArray() {
         $tmpArray = [];
         foreach (get_object_vars($this) as $variableName => $variableValue) {
-            $tmpArray[str_replace("_", '-', $variableName)] =  $variableValue;
+            if ($variableName == 'X_FB_PHOTO_WATERFALL_ID') {
+                $tmpArray[$variableName] = $variableValue;
+
+            } else {
+                $tmpArray[str_replace("_", '-', $variableName)] = $variableValue;
+            }
         }
         return $tmpArray;
     }
@@ -180,7 +194,6 @@ class XHeadersModel implements ModelInterface {
     }
 
 
-
     /**
      * @param string $X_IG_App_Locale
      */
@@ -321,6 +334,5 @@ class XHeadersModel implements ModelInterface {
         $this->X_FB_HTTP_Engine = $X_FB_HTTP_Engine;
     }
 
-    
 
 }

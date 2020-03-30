@@ -183,6 +183,8 @@ use InstagramFollowers\Response;
  */
 class ItemModel extends Response {
 
+    CONST MEDIA_TYPE_IMAGE = 1;
+
     const JSON_PROPERTY_MAP = [
         "taken_at" => "int",
         "pk" => "int",
@@ -216,6 +218,7 @@ class ItemModel extends Response {
         "facepile_top_likers" => "UserModel[]",
         "photo_of_you" => "bool",
         "caption" => "CaptionModel",
+        "fb_user_tags" => "mixed",
         "can_viewer_save" => "bool",
         "organic_tracking_token" => "string"
     ];

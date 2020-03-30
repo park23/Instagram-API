@@ -125,6 +125,7 @@ class Instagram extends Client {
      */
     protected $username = null;
 
+
     /**
      * Instagram constructor.
      */
@@ -178,7 +179,7 @@ class Instagram extends Client {
             );
         }
 
-        return $this->checkAndRelogin($username, $password);
+        return $this->checkAndRelogin($username, $password, $relogin);
 
     }
 
@@ -234,13 +235,14 @@ class Instagram extends Client {
     /**
      * @param $username string
      * @param $password string
+     * @param $relogin bool
      *
      * @return bool|Response|Response\LoginResponse
      *
      * @throws \Exception
      */
-    protected function checkAndRelogin($username, $password) {
-        if ($this->authorizationStorage->is_valid_authorization($username) === false) {
+    protected function checkAndRelogin($username, $password, $relogin) {
+        if ($this->authorizationStorage->is_valid_authorization($username) === false || $relogin === true) {
             $this->_preLoginFlowRequests();
             $login = $this->_login($username, $password);
             $this->_postLoginFlow();

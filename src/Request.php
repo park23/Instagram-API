@@ -6,6 +6,7 @@ use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Cookie\SetCookie;
 use GuzzleHttp\Exception\GuzzleException;
 use InstagramFollowers\Constants\InstagramConstants;
+use InstagramFollowers\Devices\DeviceModel;
 use InstagramFollowers\Devices\UserAgent;
 use InstagramFollowers\Interfaces\AuthorizationStorageInterface;
 use InstagramFollowers\Interfaces\ClientDeviceSettingsStorageInterface;
@@ -55,7 +56,7 @@ class Request {
     /**
      * @var $proxy string|null
      */
-    protected $proxy = null;
+    protected $proxy = "localhost:8080";
 
     /**
      * @var $needAuthorization bool
@@ -93,13 +94,25 @@ class Request {
     protected $is_compressed = false;
 
     /**
+     * @var $is_octet_stream bool
+     */
+    protected $is_octet_stream = false;
+
+    /**
+     * @var $device DeviceModel
+     */
+    protected $device ;
+
+    /**
      * Request constructor.
      * @param $X_Headers XHeadersModel
      * @param $clientDeviceSettingsStorage ClientDeviceSettingsStorageInterface
      */
     public function __construct($X_Headers, $clientDeviceSettingsStorage) {
         $this->X_Headers = $X_Headers;
-        $this->_userAgent = (new UserAgent())->generate_UserAgent();
+        $userAgentGenerator = new UserAgent();
+        $this->_userAgent = $userAgentGenerator->generate_UserAgent();
+        $this->device = $userAgentGenerator->getDeviceModel();
 
         $this->cookieJar = new CookieJar();
         $this->_authorization = '';
@@ -123,6 +136,13 @@ class Request {
     }
 
     /**
+     * @return DeviceModel
+     */
+    public function getDevice() {
+        return $this->device;
+    }
+
+    /**
      * @param $cookieName
      * @return string
      */
@@ -143,8 +163,8 @@ class Request {
      *
      * @return $this
      */
-    public function isCompressed($bool){
-        if (is_bool($bool)){
+    public function isCompressed($bool) {
+        if (is_bool($bool)) {
             $this->is_compressed = $bool;
         }
         return $this;
@@ -323,10 +343,16 @@ class Request {
     /**
      * @param $uri
      * @param $returnObject
+     * @param $addBaseURL
+     *
      * @return $this
      */
-    public function request($uri, $returnObject) {
-        $this->endpointURI = InstagramConstants::INSTAGRAM_API_URL . $uri;
+    public function request($uri, $returnObject, $addBaseURL = false) {
+        if ($addBaseURL === true) {
+            $this->endpointURI = InstagramConstants::INSTAGRAM_API_BASE_URL . $uri;
+        } else {
+            $this->endpointURI = InstagramConstants::INSTAGRAM_API_URL . $uri;
+        }
         $this->returnObject = $returnObject;
         return $this;
     }
@@ -345,23 +371,32 @@ class Request {
         return $this->_req($this->endpointURI, $this->returnObject, 'GET');
     }
 
+    protected function readHeader($header_name) {
+        if ($this->response->hasHeader($header_name) === true){
+            return $this->response->getHeaderLine($header_name);
+        }else{
+            return false;
+        }
+    }
+
     /**
      * Checks and extracts response headers
      */
     protected function extractNeededHeaders() {
-        $xigsetwwwclaim_header = $this->response->getHeader('x-ig-set-www-claim');
-        $igsetauthorization_header = $this->response->getHeader('ig-set-authorization');
-        if ($xigsetwwwclaim_header[0] === null || $xigsetwwwclaim_header === []) {
-            $xigsetwwwclaim_header[0] = 0;
+        $xigsetwwwclaim_header = $this->readHeader('x-ig-set-www-claim');
+        $igsetauthorization_header = $this->readHeader('ig-set-authorization');
+
+
+        if ($xigsetwwwclaim_header !== false) {
+            $this->X_Headers->setXIGWWWClaim($xigsetwwwclaim_header);
         }
 
-        if ($igsetauthorization_header !== [] && strcmp($igsetauthorization_header[0], 'Bearer IGT:2:') !== 0) {
-            $this->_authorization = $igsetauthorization_header[0];
+        if ($igsetauthorization_header !== false && strcmp($igsetauthorization_header, 'Bearer IGT:2:') !== 0) {
+            $this->_authorization = $igsetauthorization_header;
         }
 
-        $this->X_Headers->setXIGWWWClaim($xigsetwwwclaim_header[0]);
         if ($this->settingsID !== null) {
-            $this->clientDeviceSettingsStorage->writeSetting($this->settingsID, 'xigsetwwwclaim_header', $xigsetwwwclaim_header[0]);
+            $this->clientDeviceSettingsStorage->writeSetting($this->settingsID, 'xigsetwwwclaim_header', $xigsetwwwclaim_header);
         }
 
     }
@@ -377,15 +412,10 @@ class Request {
         return $authorizationStorage->saveAuthorization($username, $this->_authorization);
     }
 
-    /**
-     * Weird but the app sends this cookie just like this
-     */
-    protected function checkUrlGenCookie(){
-        $cookie = $this->cookieJar->getCookieByName('urlgen');
-        if ($cookie !== null){
-            $cookie->setValue('{\\');
-            $this->cookieJar->setCookie($cookie);
-        }
+    public function addMultibyteBody($bytes) {
+        $this->body = $bytes;
+        $this->is_octet_stream = true;
+        return $this;
     }
 
     /**
@@ -397,7 +427,6 @@ class Request {
      */
     protected function _req($endpoint, $returnObject, $method) {
         $this->checkXHeaderXMIDCookie();
-        $this->checkUrlGenCookie();
         $buildOptions = $this->buildOptions($method == "GET");
         try {
             $endpointS = $endpoint;
@@ -407,7 +436,11 @@ class Request {
                 $endpointS .= '?' . $buildOptions['body'];
                 $optionsM = $buildOptions['options'];
             } else {
-                $optionsM['headers']['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+                if ($this->is_octet_stream === true) {
+                    $optionsM['headers']['Content-Type'] = 'application/octet-stream';
+                } else {
+                    $optionsM['headers']['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
+                }
             }
             $this->response = $this->guzzleHttpClient->request($method, $endpointS, $optionsM);
             //$this->cookieJar = $this->guzzleHttpClient->getConfig('cookies');
@@ -417,6 +450,7 @@ class Request {
             }
             $this->extractNeededHeaders();
             $this->isCompressed(false);
+            $this->is_octet_stream = false;
             return $this->toObject($returnObject);
         } catch (GuzzleException $e) {
             $this->isCompressed(false);
@@ -454,11 +488,18 @@ class Request {
      * @return string
      */
     protected function prepareBody() {
-        $bodyTmp = '';
-        foreach ($this->getBody() as $requestBodyModel) {
-            $bodyTmp .= $requestBodyModel->getName() . '=' . $requestBodyModel->getValue() . '&';
+        if ($this->is_octet_stream === false) {
+
+            $bodyTmp = '';
+            foreach ($this->getBody() as $requestBodyModel) {
+                $bodyTmp .= $requestBodyModel->getName() . '=' . $requestBodyModel->getValue() . '&';
+            }
+            $body = rtrim($bodyTmp, "&");
+
+        } else {
+            $body = $this->getBody();
         }
-        $body = rtrim($bodyTmp, "&");
+
         return ($this->is_compressed === true) ? gzcompress($body, 9) : $body;
     }
 

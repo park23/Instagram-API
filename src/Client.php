@@ -3,6 +3,7 @@
 namespace InstagramFollowers;
 
 use InstagramFollowers\Interfaces\ClientDeviceSettingsStorageInterface;
+use InstagramFollowers\Internal\NanoTime;
 use InstagramFollowers\Repositories\ClientDeviceSettingsStorageRepository;
 use InstagramFollowers\Request\BuildXHeaders;
 use InstagramFollowers\Traits\GenerateUUIDV4Trait;
@@ -54,12 +55,18 @@ class Client extends Request {
      */
     protected $passwordPubKeyId;
 
+    /**
+     * @var $nanoTime NanoTime
+     */
+    protected $nanoTime;
+
 
     /**
      * Client constructor.
      */
     public function __construct() {
         $this->device_storage = new ClientDeviceSettingsStorageRepository();
+        $this->nanoTime = new NanoTime();
         $this->initDevice();
         $xHeaders = new BuildXHeaders($this->device_id, $this->android_id, '');
         parent::__construct($xHeaders->getHeaders(), $this->device_storage);
@@ -73,6 +80,15 @@ class Client extends Request {
         $megaRandomHash = md5(number_format(microtime(true), 7, '', ''));
         $this->android_id = 'android-' . substr($megaRandomHash, 16);
     }
+
+    /**
+     * @return NanoTime
+     */
+    public function getNanoTime() {
+        return $this->nanoTime;
+    }
+
+
 
     public function initDeviceFromArray($array) {
         $this->device_id = $array['device_id'];
