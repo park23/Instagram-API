@@ -32,8 +32,8 @@ class PeopleRequest {
             'user_id' => $user_pk,
             'radio_type' => "wifi-none",
             '_uid' => $this->getClient()->get_cookie_from_name('ds_user_id'),
-            'device_id' => $this->client->getDeviceId(),
-            '_uuid' => $this->client->getUuid(),
+            'device_id' => $this->client->getAndroidId(),
+            '_uuid' => $this->client->getDeviceId(),
 
         ];
         $this->create_friendship_last_response = $this->client->request('/friendships/create/' . $user_pk . '/', Response\FriendshipResponse::class)
