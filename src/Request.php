@@ -56,7 +56,7 @@ class Request {
     /**
      * @var $proxy string|null
      */
-    protected $proxy = "localhost:8080";
+    protected $proxy = null;
 
     /**
      * @var $needAuthorization bool
