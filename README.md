@@ -6,7 +6,7 @@ This is a PHP library which emulates Instagram's Private API. This library is ju
 
 **socialAPIS**
 
-- ![btc](https://raw.githubusercontent.com/reek/anti-adblock-killer/gh-pages/images/bitcoin.png) Bitcoin: 1E8er3aqZFdrXLtq755xBLN3Gzqjesz19t
+- ![btc](https://raw.githubusercontent.com/reek/anti-adblock-killer/gh-pages/images/bitcoin.png) Bitcoin: bc1qkauwj52rr6pelckjfq4htgjl7jvamkq5lklqca
 
 ----------
 ## Installation
