@@ -4,6 +4,7 @@ namespace InstagramFollowers\Request;
 
 use InstagramFollowers\Constants\InstagramConstants;
 use InstagramFollowers\Response;
+use InstagramFollowers\Response\UserInfoResponse;
 use InstagramFollowers\Traits\ClientTrait;
 use InstagramFollowers\Traits\SignDataTrait;
 
@@ -106,6 +107,53 @@ class AccountRequest {
             ->post();
         return $this->getPrefillCandidatesResponse;
 
+
+    }
+
+
+    /**
+     * @var $remove_profile_picture_response null|UserInfoResponse
+     */
+    public $remove_profile_picture_response;
+
+    /**
+     * @return bool|Response|UserInfoResponse
+     */
+    public function remove_profile_picture() {
+        $data = [
+            "_csrftoken" => $this->getClient()->get_csrt_token(),
+            "_uid" => $this->getClient()->get_cookie_from_name('ds_user_id'),
+            "_uuid" => $this->getClient()->getDeviceId()
+        ];
+        $this->remove_profile_picture_response = $this->client->request("/accounts/remove_profile_picture/", UserInfoResponse::class)
+            ->needAuthorization(false)
+            ->addParam('signed_body', $this->generateSignedBodyFromArray($data))
+            ->addParam("ig_sig_key_version", InstagramConstants::IG_SIG_KEY_VERSION)
+            ->post();
+        return $this->remove_profile_picture_response;
+
+
+    }
+
+    /**
+     * @var $remove_profile_picture_response null|UserInfoResponse
+     */
+    public $change_profile_picture_response;
+
+    /**
+     * @param $upload_id string
+     *
+     * @return bool|Response|UserInfoResponse
+     */
+    public function change_profile_picture($upload_id) {
+        $this->change_profile_picture_response = $this->client->request("/accounts/change_profile_picture/", UserInfoResponse::class)
+            ->needAuthorization(false)
+            ->addParam("_csrftoken", $this->getClient()->get_csrt_token())
+            ->addParam("_uuid", $this->getClient()->getDeviceId())
+            ->addParam("use_fbuploader", true)
+            ->addParam("upload_id", $upload_id)
+            ->post();
+        return $this->change_profile_picture_response;
 
     }
 

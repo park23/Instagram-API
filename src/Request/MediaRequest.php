@@ -52,10 +52,52 @@ class MediaRequest {
     }
 
     /**
+     * @var $upload_image_resumable_response UploadImageResponse
+     */
+    public $upload_image_resumable_response;
+
+    /**
+     * Performs a resumable upload of a photo file, with support for retries.
+     *
+     * @param $image_path $string
+     *
+     * @throws \Exception
+     *
+     * @return bool|Response|UploadImageResponse|null
+     */
+    public function upload_image_resumable($image_path) {
+        //preparing data for upload
+        $upload_id = $this->getClient()->getNanoTime()->elapsedAddMinutes(rand(10, 30));
+        $IG = new IGPhotoOptions();
+        $upload_session_id = $IG->getFbUploaderUploadSessionId($upload_id);
+        $image_output = CreateImageOutput::createImageOutput($image_path);
+        $photo_bytes = $image_output->checkAndReturn();
+        $headersExtra = $IG->generate_image_upload_headers($upload_id, $upload_session_id, strlen($photo_bytes));
+
+        //inject headers
+        foreach ($headersExtra as $headerName => $headerValue) {
+            $this->getClient()->getXHeaders()->addHeader($headerName, $headerValue);
+        }
+
+        //the request
+        $this->upload_image_resumable_response = $this->client->request("/rupload_igphoto/$upload_session_id/", UploadImageResponse::class, true)
+            ->needAuthorization(true)
+            ->addMultibyteBody($photo_bytes)
+            ->post();
+
+        //delete injected headers
+        foreach ($headersExtra as $headerName => $headerValue) {
+            $this->getClient()->getXHeaders()->deleteHeader($headerName);
+        }
+
+        return $this->upload_image_resumable_response;
+
+    }
+
+    /**
      * @var $uploadPhotoResponse UploadImageResponse
      */
     public $uploadPhotoResponse;
-
     /**
      * Performs a resumable upload of a photo file, with support for retries.
      *
@@ -99,6 +141,7 @@ class MediaRequest {
         }
         return $this->uploadPhotoResponse;
     }
+
 
     /**
      * @var $configureSinglePhoto Response|ConfigureMediaResponse|null
