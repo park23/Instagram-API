@@ -44,10 +44,12 @@ class Repository {
     public function openFolder($name) {
         $path = ($this->file_storage_dir . $name);
 
-        if (file_exists($path) === false) {
-            return mkdir($path, 0777, true);
-        } else {
+        if ((is_dir($path) && is_writable($path))
+            || (!is_dir($path) && mkdir($path, 0755, true))
+            || chmod($path, 0755)) {
             return true;
+        } else {
+            return false;
         }
 
     }
