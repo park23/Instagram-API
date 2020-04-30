@@ -1,6 +1,6 @@
 <?php
 
-require_once "./vendor/autoload.php";
+require_once "../vendor/autoload.php";
 
 $instagram = new \InstagramFollowers\Instagram();
 $instagram->login("username", "password");
