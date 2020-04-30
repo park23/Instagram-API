@@ -1,6 +1,8 @@
 # Instagram-API  ![compatible](https://img.shields.io/badge/PHP%207-Compatible-brightgreen.svg) 
 
-This is a PHP library which emulates Instagram's Private API. This library is just a start with latest version functions. It has Login and create_friendships. But will be expanded in future
+This is a PHP library which emulates Instagram's Private API. This library is just a start with latest version functions. 
+
+With 2FA(need command line)
 
 **Do you like this project? Support it by donating**
 
