@@ -9,7 +9,10 @@ class IGPhotoOptions {
     const MEDIA_TYPE_IMAGE = "1";
 
     public function getFbUploaderUploadSessionId($upload_id, $r_upload_param = 0) {
-        $randTmpFileStr = rand(3000000000000, 4000000000000);
+        #$randTmpFileStr = rand(3000000000000, 4000000000000);
+        $randTmpFileStrPart1 = rand(300000000, 900000000);
+	    $randTmpFileStrPart2 = rand (1000,4000);
+	    $randTmpFileStr = $randTmpFileStrPart1.$randTmpFileStrPart2;
         $tmpFilePath = '/data/data/com.instagram.android/files/pending_media_images/pending_media_.' . $randTmpFileStr . 'jpg,';
         $tmpFileStringHashCode = $this->hashCode($tmpFilePath);
         $formatStr = '%s_%s_%s';
@@ -58,7 +61,7 @@ class IGPhotoOptions {
             $val = $str;
             for ($i = 0; $i < strlen($val); $i++) {
                 $hash = 31 * $h + ord($val[$i]);
-                $ch = $hash % 4294967296;
+                $ch = $ch = fmod($hash, 4294967296);
                 if ($ch > 2147483647) {
                     $h = $ch - 4294967296;
                 } else {
